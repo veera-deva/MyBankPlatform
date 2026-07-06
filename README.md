@@ -1,1 +1,1 @@
-# MyBankPlatform
+MyBank is a mobile-first banking platform for retail customers, built to production-grade engineering standards. V1 delivers secure account creation and accurate balance/transaction management as the foundation; transfers, cards, and richer services are layered on in later phases.
