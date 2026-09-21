@@ -10,5 +10,5 @@ spring:
       ddl-auto: none
 app:
   jwt: 
-    secret: 4f8a2c9e1b7d3f6a0c5e8b2d7f4a1c6e9b3d8f2a5c7e0b4d9f6a3c8e1b5d7f2a
+    secret: JWT_SECRET
     expiration-ms: 3600000
