@@ -7,10 +7,31 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+
     ports:
       - "5433:5432"
     volumes:
       - mybank_postgres_data:/var/lib/postgresql/data
-
+  kafka:
+    image: apache/kafka:latest
+    container_name: mybank-kafka
+    restart: unless-stopped
+    
+    environment:
+      # Configures the broker to act as both the broker and the KRaft controller
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_CONTROLLER_QUORUM_VOTERS:
+        "1@localhost:9093"
+      # Listeners definition
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://localhost:9094" # <--- Match the 9094 port here
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP:
+        "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
+      # Automatically creates your topic on startup
+      KAFKA_CREATE_TOPICS: "mybank-topic:1:1"
+    ports:
+      - "9094:9092" # <--- Change host port to 9094, keep container port at 9092
 volumes:
   mybank_postgres_data:
