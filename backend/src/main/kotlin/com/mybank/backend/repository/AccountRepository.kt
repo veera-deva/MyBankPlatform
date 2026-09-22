@@ -14,7 +14,7 @@ interface AccountRepository : JpaRepository<Account, UUID> {
     @Query("select a from Account a where a.id=:id")
     fun lockById(id: UUID): Account?
 
-    fun findCustomerById(customerId: UUID): Account?
+    fun findAccountByCustomerId(customerId: UUID): Account?
 
     fun findByAccountNumber(accountNumber: String): Account?
 }

@@ -19,7 +19,7 @@ class AccountService(
     @Transactional
     fun createAccount(customerId: UUID): AccountResponse {
 
-        if (accountRepository.findCustomerById(customerId) != null) {
+        if (accountRepository.findAccountByCustomerId(customerId) != null) {
             throw AccountAlreadyExistException("Customer already has an account: $customerId")
         }
         val customer = customerRepository.findById(customerId)
