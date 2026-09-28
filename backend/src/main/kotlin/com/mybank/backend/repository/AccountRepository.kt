@@ -17,4 +17,6 @@ interface AccountRepository : JpaRepository<Account, UUID> {
     fun findAccountByCustomerId(customerId: UUID): Account?
 
     fun findByAccountNumber(accountNumber: String): Account?
+    
+    fun findByIdAndCustomerId(accountId: UUID, customerId: UUID): Account?
 }
