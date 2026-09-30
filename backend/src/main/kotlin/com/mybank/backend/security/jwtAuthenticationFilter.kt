@@ -24,9 +24,12 @@ class JwtAuthenticationFilter(private val jwtService: JwtService) : OncePerReque
                 val customerId = jwtService.extractCustomerId(token)
                 val authentication = UsernamePasswordAuthenticationToken(customerId, null, emptyList())
                 SecurityContextHolder.getContext().authentication = authentication
-                logger.warn("JWT validated successfully, authentication set for customerId=$customerId")
-            } catch (e: Exception) {
-                logger.warn("JWT validation failed : ${e.message}")
+                logger.debug("JWT validated successfully, authentication set for customerId=$customerId")
+            } catch (e: IllegalArgumentException) {
+                logger.debug("JWT validation failed : ${e.message}")
+            }
+             catch (e: Exception) {
+                logger.debug("JWT validation failed : ${e.message}")
             }
 
         }
