@@ -35,11 +35,18 @@ class SecurityConfig(private val jwtAuthenticationFilter: JwtAuthenticationFilte
                     // Not Authenticated (no/invalid/expired JWT token) ->401
                     it.authenticationEntryPoint(
                             AuthenticationEntryPoint { request, response, authException ->
-                                response.setHeader("WWW-Authenticate", "Bearer")
-                                writeErrorResponse(
-                                        response,
-                                        HttpServletResponse.SC_UNAUTHORIZED,
-                                        "Authentication required"
+                            val reason = request.getAttribute(JwtAuthenticationFilter.JWT_ERROR_ATTRIBUTE) as? String
+                            val message = when (reason) {
+                                "expired" -> "Token expired"
+                                "invalid_token" -> "Invalid token"
+                                else -> "Authentication required"
+                            }
+                            val header = if(reason != null) "Bearer error=\"$message\"" else "Bearer"
+                            response.setHeader("WWW-Authenticate", "Bearer")
+                            writeErrorResponse(
+                                    response,
+                                    HttpServletResponse.SC_UNAUTHORIZED,
+                                    header
                                 )
                             }
                     )
