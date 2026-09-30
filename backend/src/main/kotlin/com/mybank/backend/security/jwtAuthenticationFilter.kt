@@ -38,15 +38,15 @@ class JwtAuthenticationFilter(private val jwtService: JwtService) : OncePerReque
                 request.setAttribute(JWT_ERROR_ATTRIBUTE, "invalid_token")
                 logger.debug("JWT validation failed : ${e.message}")
             } catch (e: IllegalArgumentException) {
-                SecurityContextHolder.clearContext()
+                 SecurityContextHolder.clearContext()
                 request.setAttribute(JWT_ERROR_ATTRIBUTE, "invalid_token")
                 logger.debug("JWT rejected : malformmed subject")
-            }
+            } 
         }
         filterChain.doFilter(request, response)
     }
-
-    companion object {
+    
+       companion object {
         const val JWT_ERROR_ATTRIBUTE = "jwt_error"
     }
 }

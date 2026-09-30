@@ -5,6 +5,9 @@ import com.mybank.backend.repository.CustomerRepository
 import com.mybank.backend.security.JwtService
 import com.mybank.backend.web.dto.LoginRequest
 import com.mybank.backend.web.dto.RegisterRequest
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
@@ -14,13 +17,10 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.test.context.TestPropertySource
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
-import org.junit.jupiter.api.Assertions.assertDoesNotThrow
-import org.junit.jupiter.api.Assertions.assertThrows
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.springframework.test.context.TestPropertySource
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -30,11 +30,8 @@ import org.springframework.test.context.TestPropertySource
 class AuthServiceTest {
 
     companion object {
-        @Container
-        @ServiceConnection
-        val postgres = PostgreSQLContainer("postgres:16")
+        @Container @ServiceConnection val postgres = PostgreSQLContainer("postgres:16")
     }
-
 
     // Provides just what AuthService needs, not the whole application context
     // Avoid pulling in the whole SecurityConfig/filter chain, etc.
@@ -45,60 +42,61 @@ class AuthServiceTest {
         }
     }
 
-    @Autowired
-    lateinit var customerRepository: CustomerRepository
+    @Autowired lateinit var customerRepository: CustomerRepository
 
-    @Autowired
-    lateinit var authService: AuthService
+    @Autowired lateinit var authService: AuthService
 
     @Test
     fun `register should create a new customer and return a token`() {
-        val request = RegisterRequest(
-            email = "test@example.com",
-            password = "password", "Test User"
-        )
+        val request =
+                RegisterRequest(
+                        email = "register-new@example.com",
+                        password = "password",
+                        "Test User"
+                )
         // Test implementation here
         assertDoesNotThrow {
             val response = authService.register(request)
-            assertTrue(response.token.isNotEmpty(),"Token should not be empty")
+            assertTrue(response.token.isNotEmpty(), "Token should not be empty")
         }
     }
 
     @Test
     fun `register rejects a duplicate email`() {
-        val request = RegisterRequest(
-            email = "test@example.com",
-            password = "password", "Test User"
-        )
-        assertThrows(EmailAlreadyRegisteredException::class.java) {
-            authService.register(request)  
-        }
+        val request =
+                RegisterRequest(
+                        email = "register-duplicate@example.com",
+                        password = "password",
+                        "Test User"
+                )
+        authService.register(request)
+        assertThrows(EmailAlreadyRegisteredException::class.java) { authService.register(request) }
     }
 
     @Test
     fun `login with valid credentials returns a token`() {
-        val request = LoginRequest(
-            email = "test@example.com",
-            password = "password"
+        val email = "login-valid@example.com"
+        val request = LoginRequest(email = email, password = "password")
+        authService.register(
+                RegisterRequest(email = email, password = "password", fullName = "Test User")
         )
         // Test implementation here
         assertDoesNotThrow {
             val response = authService.login(request)
-            assertTrue(response.token.isNotEmpty(),"Token should not be empty")
+            assertTrue(response.token.isNotEmpty(), "Token should not be empty")
         }
     }
 
     @Test
     fun `login with invalid credentials throws exception`() {
-        val request = LoginRequest(
-            email = "test@example.com",
-            password = "wrongpassword"
+        val email = "login-invalid@example.com"
+
+        authService.register(
+                RegisterRequest(email = email, password = "password", fullName = "Test User")
         )
         // Test implementation here
         assertThrows(InvalidCredentialsException::class.java) {
-            authService.login(request)
+            authService.login(LoginRequest(email = email, password = "wrongpassword"))
         }
     }
-    
- 
 }
