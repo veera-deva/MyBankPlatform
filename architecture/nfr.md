@@ -16,8 +16,9 @@
 
 ## Related Decisions
 
-- [ADR-0001](./adr/ADR-0001.md) — Modular monolith over microservices for v1.
+- [ADR-0001](./adr/ADR-0001.md) — Modular monolith over microservices for v1. Superseded by ADR-0004.
 - [ADR-0002](./adr/ADR-0002.md) — Ledger as source of truth.
 - [ADR-0003](./adr/ADR-0003.md) — Stateless JWT authentication.
-
-(Adjust the ADR paths above if your actual ADR files live elsewhere — they weren't found on disk as of this document's creation, so these are placeholder references pending confirmation.)
+- [ADR-0004](./adr/ADR-0004.md) — Adopt microservices architecture. NFR-1 in particular is why `core-banking-service` keeps accounts and the ledger together rather than splitting them.
+- [ADR-0005](./adr/ADR-0005.md) — PostgreSQL over MongoDB. Chosen in large part to satisfy NFR-1, NFR-3, and NFR-7.
+- [ADR-0006](./adr/ADR-0006.md) — REST over GraphQL for the external API.

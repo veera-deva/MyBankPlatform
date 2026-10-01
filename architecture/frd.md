@@ -34,5 +34,4 @@ These were deliberately deferred so v1 stays small enough to build the core ledg
 
 - [ADR-0002](./adr/ADR-0002.md) — Ledger as source of truth (balance is derived, never stored directly) governs how FR-4 through FR-7 are implemented.
 - [ADR-0003](./adr/ADR-0003.md) — Stateless JWT authentication governs how FR-1 and FR-2 are implemented.
-
-(Adjust the ADR paths above if your actual ADR files live elsewhere — they weren't found on disk as of this document's creation, so these are placeholder references pending confirmation.)
+- [ADR-0004](./adr/ADR-0004.md) — Adopt microservices architecture (supersedes ADR-0001). FR-1 through FR-7 as implemented here become the baseline being extracted into `identity-service` and `core-banking-service`.
