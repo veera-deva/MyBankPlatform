@@ -13,25 +13,62 @@ services:
     volumes:
       - mybank_postgres_data:/var/lib/postgresql/data
   kafka:
-    image: apache/kafka:latest
+    image: apache/kafka:4.3.1
     container_name: mybank-kafka
     restart: unless-stopped
-    
+
     environment:
       # Configures the broker to act as both the broker and the KRaft controller
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: "broker,controller"
-      KAFKA_CONTROLLER_QUORUM_VOTERS:
-        "1@localhost:9093"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@localhost:9093"
       # Listeners definition
-      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://localhost:9094" # <--- Match the 9094 port here
+      KAFKA_LISTENERS: "INTERNAL://:19092,EXTERNAL://:9092, CONTROLLER://:9093"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:19092, EXTERNAL://localhost:9094" # <--- Match the 9094 port here
       KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP:
-        "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
+        "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
+        # Typos in topic names should fail loudly, not silently create a 1-partition topic
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      # one Broker, so internal topics can't be replicated 3x(consumer group hang otherise)
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       # Automatically creates your topic on startup
-      KAFKA_CREATE_TOPICS: "mybank-topic:1:1"
+      # KAFKA_CREATE_TOPICS: "mybank-topic:1:1"
     ports:
       - "9094:9092" # <--- Change host port to 9094, keep container port at 9092
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:19092 > /dev/null 2>&1"
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
+  kafka-init:
+    image: apache/kafka:4.3.1
+    container_name: mybank-kafka-init
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: "no"
+    entrypoint: ["/opt/kafka/bin/kafka-topics.sh"]
+    command:
+      - "--bootstrap-server"
+      - "kafka:19092"
+      - "--create"
+      - "--if-not-exists"
+      - "--topic"
+      - "banking.ledger.transaction-posted.v1"
+      - "--partitions"
+      - "3"
+      - "--replication-factor"
+      - "1"
 volumes:
   mybank_postgres_data:
+
