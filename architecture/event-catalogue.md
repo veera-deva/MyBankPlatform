@@ -33,8 +33,8 @@ Example: `banking.ledger.transaction-posted.v1`. Decided once, up front — rena
 | `accountId` | UUID | Partition key |
 | `customerId` | UUID | Included so `notification-service` doesn't need to call back into `core-banking-service` or `identity-service` just to know who to notify |
 | `type` | enum (`DEPOSIT`, `WITHDRAWAL`) | Matches `TransactionType` |
-| `amount` | decimal | The transaction amount |
-| `balanceAfter` | decimal | The resulting balance, matching `LedgerEntry.balanceAfter` |
+| `amount` | decimal, encoded as a string (e.g. `"100.00"`) | The transaction amount. Protobuf has no decimal type and `double`/`float` are forbidden for money (NFR-3), so it travels as a string and is parsed back with `BigDecimal` |
+| `balanceAfter` | decimal, encoded as a string | The resulting balance, matching `LedgerEntry.balanceAfter`; same string encoding as `amount` |
 | `occurredAt` | timestamp | When the ledger entry was created, not when the event was published (these can differ once the outbox pattern is added in M4) |
 
 ## Deliberately Not Yet Catalogued
