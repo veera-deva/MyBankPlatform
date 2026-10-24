@@ -7,12 +7,12 @@ option java_package ="com.mybank.contracts.ledger.v1";
 option java_outer_classname ="TransactionPostedProto";
 option java_multiple_files = true;
 
-// Published by core banking service to topic banking.ledger.v1.transaction-posted.v1,
+// Published by core banking service to topic banking.ledger.transaction-posted.v1,
 // keyed by account_id.
 
 message TransactionPosted {
     string event_id = 1;
-    string ledger_entryid = 2;
+    string ledger_entry_id = 2;
     string account_id = 3;
     string customer_id = 4;
     TransactionType type = 5;
@@ -20,11 +20,11 @@ message TransactionPosted {
     // Exact decimal as a string,  eg "100.00" or "-100.00" protobug has no decimal type and double/float is forbidden for money.
     string amount = 6;
     string balance_after = 7;
-    google.protobuf.Timestamp occured_at = 8;
+    google.protobuf.Timestamp occurred_at = 8;
 }
 
 enum TransactionType {
     TRANSACTION_TYPE_UNSPECIFIED = 0;
-    TRANSACTION_TYPE_DEBIT = 1;
+    TRANSACTION_TYPE_DEPOSIT = 1;
     TRANSACTION_TYPE_WITHDRAWAL = 2;
 }

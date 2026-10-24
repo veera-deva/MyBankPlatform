@@ -13,9 +13,7 @@ repositories {
 
 val protobufVersion = "4.36.2"
 dependencies {
-    implementation("com.google.protobuf:protobuf-java:$protobufVersion")
-    implementation("com.google.protobuf:protobuf-kotlin:$protobufVersion")
-    implementation("com.google.protobuf:protobuf-java-util:$protobufVersion")
+    api("com.google.protobuf:protobuf-java:$protobufVersion")
 }
 protobuf {
     protoc {
