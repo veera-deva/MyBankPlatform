@@ -3,18 +3,16 @@ package com.mybank.backend.service
 
 import com.mybank.backend.domain.Account
 import com.mybank.backend.domain.Customer
+import com.mybank.backend.messaging.NoOpTransactionEventPublisher
 import com.mybank.backend.repository.AccountRepository
 import com.mybank.backend.repository.CustomerRepository
 import com.mybank.backend.repository.LedgerEntryRepository
-import com.mybank.backend.service.InsufficientFundsException
-import com.mybank.backend.service.LedgerService
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
 import org.springframework.context.annotation.Import
-import org.springframework.test.annotation.Commit
 import org.springframework.test.context.transaction.TestTransaction
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
@@ -31,7 +29,7 @@ import kotlin.test.assertTrue
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
-@Import(LedgerService::class)
+@Import(LedgerService::class, NoOpTransactionEventPublisher::class)
 class LedgerServiceTest {
 
     companion object {
